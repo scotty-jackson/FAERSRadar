@@ -4,14 +4,32 @@ A production-quality web application for exploring drug safety signals from the 
 
 ## Features
 
+### Core Features
 - **Drug Search**: Typeahead search across all drugs in FAERS database
 - **Drug Dashboards**: Per-drug side-effect profiles with time-series trends
 - **Reaction Analysis**: Detailed drug-reaction pair analysis with time trends
 - **Signal Detection**: PRR/ROR-based disproportionality metrics with signal flags
 - **Drug Comparison**: Compare adverse event patterns across multiple drugs
 - **Global Views**: Top reactions overall and outcome distributions
+- **All Reactions View**: Complete paginated list of all reactions for a drug
 - **SEO-Optimized**: Server-side rendering for drug and reaction pages
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
+
+### Enhanced UX
+- **Pagination**: Navigate large datasets efficiently
+- **Loading Skeletons**: Visual feedback during data loading
+- **Error Boundaries**: Graceful error handling with recovery options
+- **Export Functionality**: Download data as CSV or JSON
+- **Interactive Charts**: Bar charts and line charts with Recharts
+- **Tooltips**: Helpful explanations for medical and statistical terms
+- **Recent Searches**: Quick access to previously viewed drugs (stored locally)
+
+### Backend Enhancements
+- **Error Handling Middleware**: Catches and logs all exceptions
+- **Request Logging**: Tracks all API requests with timing information
+- **Rate Limiting**: Prevents abuse (configurable per minute)
+- **Sample Data Generator**: Test the application without real FAERS data
+- **Docker Support**: Easy deployment with Docker Compose
 
 ## Architecture
 
@@ -227,6 +245,47 @@ npm run build
 npm start
 ```
 
+### Using Docker
+
+**Development with Docker Compose**:
+
+```bash
+# Start all services (database, backend, frontend)
+docker-compose -f docker-compose.dev.yml up
+
+# Stop services
+docker-compose -f docker-compose.dev.yml down
+```
+
+**Production with Docker Compose**:
+
+```bash
+# Build and start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+**Generate Sample Data in Docker**:
+
+```bash
+# Access the backend container
+docker exec -it faers_backend bash
+
+# Generate sample data
+python -m backend.etl.sample_data_generator --cases 1000 --init-db
+
+# Build aggregations
+python -m backend.etl.build_drug_reaction_agg --from-year 2020 --to-year 2024
+
+# Exit container
+exit
+```
+
 ## Project Structure
 
 ```
@@ -323,16 +382,44 @@ Full API documentation available at: http://localhost:8000/docs
 
 ## Testing the Application
 
-### Quick Test with Sample Data
+### Option 1: Quick Test with Generated Sample Data
+
+Perfect for testing without downloading real FAERS data:
+
+```bash
+# Generate 1000 sample case reports
+python -m backend.etl.sample_data_generator --cases 1000 --init-db
+
+# Build aggregations
+python -m backend.etl.build_drug_reaction_agg --from-year 2020 --to-year 2024
+
+# Start backend
+cd backend && python main.py
+
+# Start frontend (new terminal)
+cd frontend && npm run dev
+
+# Visit http://localhost:3000
+# Search for "ASPIRIN", "METFORMIN", or "IBUPROFEN"
+```
+
+The sample data generator creates realistic FAERS-like data with:
+- 20 common drugs
+- 33 common adverse reactions
+- Randomized patient demographics
+- Serious outcomes (30% of cases)
+- Time-distributed reports (2020-2024)
+
+### Option 2: Test with Real FAERS Data
 
 1. Download and load 1-2 quarters of FAERS data
 2. Run the ETL loader
 3. Build aggregations for those quarters
 4. Start backend and frontend
-5. Search for a common drug (e.g., "ASPIRIN", "METFORMIN", "IBUPROFEN")
+5. Search for a common drug
 6. View drug dashboard and explore reactions
 
-### Example Test Commands
+### Example Commands for Real Data
 
 ```bash
 # Load Q1 2024

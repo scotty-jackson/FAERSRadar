@@ -5,6 +5,11 @@ from dotenv import load_dotenv
 import os
 
 from backend.api import health, drugs, compare, reactions
+from backend.middleware import (
+    ErrorHandlingMiddleware,
+    RequestLoggingMiddleware,
+    RateLimitMiddleware
+)
 
 load_dotenv()
 
@@ -17,9 +22,19 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configure CORS
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+# Add middleware (order matters - first added is outermost)
+# 1. Error handling (outermost - catches all errors)
+app.add_middleware(ErrorHandlingMiddleware)
 
+# 2. Request logging
+app.add_middleware(RequestLoggingMiddleware)
+
+# 3. Rate limiting
+rate_limit = int(os.getenv("RATE_LIMIT_PER_MINUTE", "60"))
+app.add_middleware(RateLimitMiddleware, requests_per_minute=rate_limit)
+
+# 4. CORS (innermost - handles CORS before request processing)
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
