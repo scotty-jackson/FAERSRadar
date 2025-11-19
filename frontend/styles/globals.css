@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+/* Ad slots styling */
+.ad-slot {
+  @apply bg-gray-50 border border-gray-200 rounded-lg p-4 text-center text-sm text-gray-500;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Disclaimer styling */
+.disclaimer {
+  @apply bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4;
+}
+
+.disclaimer-text {
+  @apply text-sm text-yellow-800;
+}
